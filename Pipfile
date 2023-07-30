@@ -12,3 +12,5 @@ python_version = "3.11"
 [packages]
 flask = "2.3"
 spotipy = "2.22"
+requests_oauthlib = "*"
+requests = "*"
