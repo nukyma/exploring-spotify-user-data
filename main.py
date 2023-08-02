@@ -2,19 +2,7 @@ from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 
 import settings
-
-
-def get_user_private_info(sp):
-    """
-    get user private profile information
-    :param sp:
-    :return: result
-    """
-    endpoint_uri = 'https://api.spotify.com/v1/me'
-    result = sp.get(endpoint_uri)
-
-    return result.text
-
+from sp_api_calls import get_user_private_info, get_user_recently_played_tracks
 
 if __name__ == '__main__':
     # Create a OAuth2Session named spotify
@@ -38,5 +26,4 @@ if __name__ == '__main__':
 
     # Use own methods to pull raw data from the Spotify API
     user_info = get_user_private_info(sp=spotify)
-
-    print(user_info)
+    get_user_recently_played_tracks(sp=spotify)
