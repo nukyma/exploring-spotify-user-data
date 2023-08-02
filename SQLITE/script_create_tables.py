@@ -1,6 +1,6 @@
 import sqlite3
 
-con = sqlite3.connect("MySpotifyData")
+con = sqlite3.connect("../MySpotifyData")
 cur = con.cursor()
 
 cur.execute("CREATE TABLE play("
