@@ -2,7 +2,9 @@ from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 
 import settings
-from API.sp_api_calls import get_user_private_info, get_user_recently_played_tracks
+from API import extract_data
+from DATABASE import play_table
+from TRANSFORM import transform_data
 
 if __name__ == '__main__':
     # Create a OAuth2Session named spotify
@@ -25,5 +27,11 @@ if __name__ == '__main__':
                                 authorization_response=redirect_response)
 
     # Use own methods to pull raw data from the Spotify API
-    user_info = get_user_private_info(sp=spotify)
-    get_user_recently_played_tracks(sp=spotify)
+    user_info = extract_data.get_user_private_info(sp=spotify)
+
+    # Extract
+    played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
+    # Transform: Select, clean and transform data
+    played_tracks_dict = transform_data.recently_played_tracks(data=played_tracks)
+    # Load
+    play_table.insert_into_play(data=played_tracks_dict)
