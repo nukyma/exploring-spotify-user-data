@@ -2,7 +2,7 @@ from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 
 import settings
-from sp_api_calls import get_user_private_info, get_user_recently_played_tracks
+from API.sp_api_calls import get_user_private_info, get_user_recently_played_tracks
 
 if __name__ == '__main__':
     # Create a OAuth2Session named spotify
