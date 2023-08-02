@@ -1,13 +1,15 @@
 import sqlite3
 
-con = sqlite3.connect("../MySpotifyData")
+import settings
+
+con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
 cur = con.cursor()
 
 cur.execute("CREATE TABLE play("
-            "id INTEGER PRIMARY KEY DESC, "
-            "track_id TEXT, "
-            "track_played_at TEXT, "
-            "context TEXT "
+            "track_id TEXT , "
+            "track_played_at TEXT , "
+            "context TEXT ,"
+            "PRIMARY KEY (track_id, track_played_at)"
             ")")
 
 cur.execute("CREATE TABLE track("
@@ -27,7 +29,7 @@ cur.execute("CREATE TABLE track("
             ")")
 
 cur.execute("CREATE TABLE track_features("
-            " track_id TEXT, "
+            " track_id TEXT PRIMARY KEY, "
             "acousticness REAL, "
             "analysis_url TEXT, "
             "danceability REAL, "
