@@ -27,5 +27,11 @@ if __name__ == '__main__':
                                 authorization_response=redirect_response)
 
     # Use own methods to pull raw data from the Spotify API
-    user_info = get_user_private_info(sp=spotify)
-    get_user_recently_played_tracks(sp=spotify)
+    user_info = extract_data.get_user_private_info(sp=spotify)
+
+    # Extract
+    played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
+    # Transform: Select, clean and transform data
+    played_tracks_dict = transform_data.recently_played_tracks(data=played_tracks)
+    # Load
+    play_table.insert_into_play(data=played_tracks_dict)
