@@ -43,3 +43,32 @@ def make_batches_of_tracks_ids(size, data):
             list_batches.append(string_ids)
 
     return list_batches
+
+
+def tracks_info(data):
+    insert_list = list()
+    for d in data:
+        for i in d['tracks']:
+
+            artists_id = list()
+            artists_names = list()
+            for a in i['artists']:
+                artists_id.append(a['id'])
+                artists_names.append(a['name'])
+
+            track = {'id': i['id'],
+                     'name': i['name'],
+                     'album_id': i['album']['id'],
+                     'album_name': i['album']['name'],
+                     'artists_id': str(artists_id),
+                     'artists_names': str(artists_names),
+                     'duration_ms': i['duration_ms'],
+                     'explicit': i['explicit'],
+                     'popularity': i['popularity'],
+                     'type': i['type'],
+                     'preview_url': i['preview_url']
+                     }
+
+            insert_list.append(track)
+
+    return insert_list
