@@ -29,6 +29,8 @@ if __name__ == '__main__':
     # Use own methods to pull raw data from the Spotify API
     # user_info = extract_data.get_user_private_info(sp=spotify)
 
+
+    ###         USER LAST 50 PLAYED SONGS                       ###
     # Extract
     played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
     # Transform: Select, clean and transform data
