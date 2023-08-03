@@ -3,7 +3,7 @@ from requests_oauthlib import OAuth2Session
 
 import settings
 from API import extract_data
-from DATABASE import play_table
+from DATABASE import play_table, track_table
 from TRANSFORM import transform_data
 
 if __name__ == '__main__':
@@ -27,7 +27,7 @@ if __name__ == '__main__':
                                 authorization_response=redirect_response)
 
     # Use own methods to pull raw data from the Spotify API
-    user_info = extract_data.get_user_private_info(sp=spotify)
+    # user_info = extract_data.get_user_private_info(sp=spotify)
 
     # Extract
     played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
@@ -36,9 +36,17 @@ if __name__ == '__main__':
     # Load
     play_table.insert_into_play(data=played_tracks_dict)
 
+
+    ###         COMPLETE TRACKS INFO IN BATCHES OF 50           ###
+    # Consult our DB
+    list_ids = track_table.get_tracks_incomplete()
+    # BATCH
+    list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_ids)
+    info_tracks = list()
     # Extract
-    info_tracks = extract_data.get_track_info(sp=spotify)
+    for i in list_batch_ids:
+        info_tracks.append(extract_data.get_several_tracks_info(sp=spotify, batch_ids=i))
     # Transform
     info_tracks_dict = transform_data.tracks_info(data=info_tracks)
     # Load
-    play_tracks.insert_into_track(data=info_tracks_dict)
+    track_table.insert_into_track(data=info_tracks_dict)
