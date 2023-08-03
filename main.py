@@ -35,3 +35,10 @@ if __name__ == '__main__':
     played_tracks_dict = transform_data.recently_played_tracks(data=played_tracks)
     # Load
     play_table.insert_into_play(data=played_tracks_dict)
+
+    # Extract
+    info_tracks = extract_data.get_track_info(sp=spotify)
+    # Transform
+    info_tracks_dict = transform_data.tracks_info(data=info_tracks)
+    # Load
+    play_tracks.insert_into_track(data=info_tracks_dict)
