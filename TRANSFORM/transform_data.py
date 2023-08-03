@@ -18,22 +18,28 @@ def make_batches_of_tracks_ids(size, data):
     counter = 0
     string_ids = ""
     for i in data:
-
-        if counter <= size - 1:
+        if counter <= size - 1 and i != data[len(data)-1]:
             string_ids = string_ids + str(i) + ','
             counter += 1
-        else:
+
+        elif counter==50 and i != data[len(data)-1]:
             # batch_ids expected format: "7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"
-            # Clean the ' at start and end of every id
+            # Clean the ' chars
             string_ids = string_ids.replace("'", "")
-            # Include the first ' char
-            string_ids = "'" + string_ids
-            # Get rid of the last comma and add the last ' char
-            string_ids = string_ids[:-1] + "'"
+            # Get rid of the last comma
+            string_ids = string_ids[:-1]
 
             list_batches.append(string_ids)
 
             counter = 0
             string_ids = ""
+
+        elif i == data[len(data)-1]:
+            # Clean the ' chars
+            string_ids = string_ids.replace("'", "")
+            # Get rid of the last comma
+            string_ids = string_ids[:-1]
+
+            list_batches.append(string_ids)
 
     return list_batches
