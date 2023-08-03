@@ -23,3 +23,42 @@ def get_tracks_incomplete():
         list_ids.append(i[0])
 
     return list_ids
+
+
+def insert_into_track(data):
+
+    # Open database connection
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    for d in data:
+
+        sql_update_track_ = '''UPDATE track
+                               SET name = ?, 
+                                   album_id = ?,
+                                   album_name = ?,
+                                   artists_id = ?,
+                                   artists_names = ?,
+                                   duration_ms = ?,
+                                   explicit = ?,
+                                   popularity = ?,
+                                   type = ?,
+                                   preview_url = ? 
+                                WHERE id = ? '''
+
+        par_update_track_ = (d['name'],
+                             d['album_id'],
+                             d['album_name'],
+                             d['artists_id'],
+                             d['artists_names'],
+                             d['duration_ms'],
+                             d['explicit'],
+                             d['popularity'],
+                             d['type'],
+                             d['preview_url'],
+                             d['id'])
+
+        cur.execute(sql_update_track_, par_update_track_)
+
+    con.commit()
+    con.close()
