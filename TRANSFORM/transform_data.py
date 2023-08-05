@@ -22,7 +22,7 @@ def recently_played_tracks_response(data):
             'context': i['context']['type'],
         })
 
-        for k in i['tracks']['artists']:
+        for k in i['track']['artists']:
             map_track_artist_info.append({'track_id': i['track']['id'],
                                           'artist_id': k['id'],
                                           'played_at': i['played_at'].replace('T', ' '),
