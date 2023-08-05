@@ -68,3 +68,53 @@ def create_audio_features_table():
 
     con.commit()
     con.close()
+
+
+def create_album_table():
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    cur.execute("CREATE TABLE album("
+                "id TEXT PRIMARY KEY, "
+                "name TEXT,"
+                "genres TEXT,"
+                "album_type TEXT, "
+                "total_tracks INT, "
+                "external_urls TEXT,"
+                "release_date TEXT,"
+                "label TEXT,"
+                "popularity INT,"
+                "artist_album_name TEXT,"
+                "artist_album_id TEXT,"
+                "first_played TEXT,"
+                "last_played TEXT,"
+                "is_user_saved INT"
+                ")")
+
+    con.commit()
+    con.close()
+
+
+# create_album_table()
+
+def create_artist_table():
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    cur.execute("CREATE TABLE artist("
+                "id TEXT PRIMARY KEY, "
+                "name TEXT,"
+                "genres TEXT,"
+                "followers INT,"
+                "popularity INT,"
+                "external_urls TEXT,"
+                "first_played TEXT,"
+                "last_played TEXT,"
+                "is_user_saved INT"
+                ")")
+
+    con.commit()
+    con.close()
+
+
+create_artist_table()
