@@ -78,4 +78,33 @@ def populate_track_table_from_play_table():
     con.close()
 
 
-populate_track_table_from_play_table()
+# populate_track_table_from_play_table()
+
+def populate_audio_features_ids_from_play_table():
+    # Select track_ids from play table and see what track_ids are not in the track table.
+
+    # Open database connection
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    # Select track_ids and track_played_at from play table
+    sql_select_track_ids_ = ''' SELECT DISTINCT track_id
+                                FROM play 
+                                '''
+
+    cur.execute(sql_select_track_ids_)
+    aux_track_ids = cur.fetchall()
+
+    for i in aux_track_ids:
+
+        # Insert track_ids to track_features table
+        sql_insert_track_ids_ = ''' INSERT INTO audio_features(track_id) 
+                                    VALUES (?) '''
+        par_insert_track_ids_ = [i[0]]
+
+        cur.execute(sql_insert_track_ids_, par_insert_track_ids_)
+
+    con.commit()
+    con.close()
+
+populate_audio_features_ids_from_play_table()

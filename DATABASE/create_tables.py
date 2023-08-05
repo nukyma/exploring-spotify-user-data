@@ -43,12 +43,12 @@ def create_track_table():
     con.close()
 
 
-def create_track_features_table():
+def create_audio_features_table():
     con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
     cur = con.cursor()
 
-    cur.execute("CREATE TABLE track_features("
-                " track_id TEXT PRIMARY KEY, "
+    cur.execute("CREATE TABLE audio_features("
+                "track_id TEXT PRIMARY KEY, "
                 "acousticness REAL, "
                 "analysis_url TEXT, "
                 "danceability REAL, "
