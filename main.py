@@ -3,7 +3,7 @@ from requests_oauthlib import OAuth2Session
 
 import settings
 from API import extract_data
-from DATABASE import play_table, track_table
+from DATABASE import play_table, track_table, audio_features_table
 from TRANSFORM import transform_data
 
 if __name__ == '__main__':
