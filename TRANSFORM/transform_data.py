@@ -47,7 +47,6 @@ def recently_played_tracks_response(data):
                            'artists_names': str(artists_names),
                            'duration_ms': j['track']['duration_ms'],
                            'explicit': j['track']['explicit'],
-                           'popularity': j['track']['popularity'],
                            'type': j['track']['type'],
                            'preview_url': j['track']['external_urls']['spotify']
                            })
