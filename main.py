@@ -50,3 +50,17 @@ if __name__ == '__main__':
     info_tracks_dict = transform_data.tracks_info(data=info_tracks)
     # Load
     track_table.insert_into_track(data=info_tracks_dict)
+
+    ###         COMPLETE AUDIO FEATURES INFO IN BATCHES OF 50    ###
+    # Consult our DB
+    list_audio_ids = audio_features_table.get_audio_incomplete()
+    # BATCH
+    list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_audio_ids)
+    # Extract
+    info_audio_features = list()
+    for i in list_batch_ids:
+        info_audio_features.append(extract_data.get_several_audio_features_info(sp=spotify, batch_ids=i))
+    # Transform
+    info_audio_features_dict = transform_data.audio_features_info(data=info_audio_features)
+    # Load
+    audio_features_table.insert_into_audio_features(data=info_audio_features_dict)
