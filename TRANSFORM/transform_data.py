@@ -72,3 +72,30 @@ def tracks_info(data):
             insert_list.append(track)
 
     return insert_list
+
+
+def audio_features_info(data):
+    insert_list = list()
+    for d in data:
+        for i in d['audio_features']:
+            if i:
+                audio_feature = {'track_id': i['id'],
+                                 'acousticness': i['acousticness'],
+                                 'analysis_url': i['analysis_url'],
+                                 'danceability': i['danceability'],
+                                 'duration_ms': i['duration_ms'],
+                                 'energy': i['energy'],
+                                 'instrumentalness': i['instrumentalness'],
+                                 'key': i['key'],
+                                 'liveness': i['liveness'],
+                                 'loudness': i['loudness'],
+                                 'mode': i['mode'],
+                                 'valence': i['valence'],
+                                 'speechiness': i['speechiness'],
+                                 'tempo': i['tempo'],
+                                 'time_signature': i['time_signature'],
+                                 'track_href': i['track_href']}
+
+                insert_list.append(audio_feature)
+
+    return insert_list
