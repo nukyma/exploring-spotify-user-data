@@ -20,12 +20,19 @@ def insert_into_play(data):
         cur.execute(sql_select_, par_select_)
 
         # If pair (track_id and played_at) ARE NOT in the DB, we should include them in play table
+        # And we should include them in track_features table as well
         if not cur.fetchone():
             sql_insert_play_ = '''INSERT INTO play (track_id, track_played_at, context) 
                                   VALUES (?, ?, ?)'''
             par_insert_play_ = (d['track_id'], d['played_at'], d['context'])
 
             cur.execute(sql_insert_play_, par_insert_play_)
+
+            sql_insert_track_features_ = '''INSERT INTO audio_features (track_id)
+                                           VALUES (?)'''
+            par_insert_track_features_ = [d['track_id']]
+
+            cur.execute(sql_insert_track_features_, par_insert_track_features_)
 
             # TRIGGER track TABLE
             # Search for the track in the track table
