@@ -80,7 +80,7 @@ def populate_track_table_from_play_table():
 
 # populate_track_table_from_play_table()
 
-def populate_track_features_ids_from_play_table():
+def populate_audio_features_ids_from_play_table():
     # Select track_ids from play table and see what track_ids are not in the track table.
 
     # Open database connection
@@ -96,8 +96,9 @@ def populate_track_features_ids_from_play_table():
     aux_track_ids = cur.fetchall()
 
     for i in aux_track_ids:
+
         # Insert track_ids to track_features table
-        sql_insert_track_ids_ = ''' INSERT INTO track_features(track_id) 
+        sql_insert_track_ids_ = ''' INSERT INTO audio_features(track_id) 
                                     VALUES (?) '''
         par_insert_track_ids_ = [i[0]]
 
@@ -106,4 +107,4 @@ def populate_track_features_ids_from_play_table():
     con.commit()
     con.close()
 
-# populate_track_features_ids_from_play_table()
+populate_audio_features_ids_from_play_table()
