@@ -41,7 +41,6 @@ def insert_into_track(data):
                                    artists_names = ?,
                                    duration_ms = ?,
                                    explicit = ?,
-                                   popularity = ?,
                                    type = ?,
                                    preview_url = ? 
                                 WHERE id = ? '''
@@ -53,7 +52,6 @@ def insert_into_track(data):
                              d['artists_names'],
                              d['duration_ms'],
                              d['explicit'],
-                             d['popularity'],
                              d['type'],
                              d['preview_url'],
                              d['id'])
