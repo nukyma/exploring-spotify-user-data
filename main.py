@@ -39,11 +39,11 @@ if __name__ == '__main__':
 
     ###         COMPLETE TRACKS INFO IN BATCHES OF 50           ###
     # Consult our DB
-    list_ids = track_table.get_tracks_incomplete()
+    list_tracks_ids = track_table.get_tracks_incomplete()
     # BATCH
-    list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_ids)
-    info_tracks = list()
+    list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_tracks_ids)
     # Extract
+    info_tracks = list()
     for i in list_batch_ids:
         info_tracks.append(extract_data.get_several_tracks_info(sp=spotify, batch_ids=i))
     # Transform
