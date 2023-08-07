@@ -93,8 +93,6 @@ def create_album_table():
     con.close()
 
 
-# create_album_table()
-
 def create_artist_table():
     con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
     cur = con.cursor()
@@ -144,6 +142,3 @@ def create_map_track_artist_table():
     con.commit()
     con.close()
 
-
-# create_map_track_album_table()
-# create_map_track_artist_table()
