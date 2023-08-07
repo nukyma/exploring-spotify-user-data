@@ -13,3 +13,6 @@ SEVERAL_AUDIO_FEATURES = 'https://api.spotify.com/v1/audio-features?ids='
 
 # https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists
 SEVERAL_ARTISTS_INFO = 'https://api.spotify.com/v1/artists?ids='
+
+# https://developer.spotify.com/documentation/web-api/reference/get-multiple-albums
+SEVERAL_ALBUMS_INFO = 'https://api.spotify.com/v1/albums?ids='
