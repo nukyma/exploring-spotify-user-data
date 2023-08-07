@@ -3,7 +3,17 @@ import sqlite3
 import settings
 
 
-def insert_into_play_table(data, trigger):
+def insert_into_play_audio_features_track_table(data, trigger):
+    """
+    Insert the play (track_id + played_at + context) in play table
+    Insert track_id in audio_features
+    If trigger param is set to True, then the track_id and played_at is inserted in the track table as follows:
+    - If the track was already in the table, updates the last_play field and sums 1 to times_played
+    - If the track is not in the table, then adds the track_id, the first_play = last_play which is played_at
+      and times_played is equal to 1
+    :param list of dict data: response from recently_played_tracks_response endpoint
+    :param trigger: flag use to trigger the insert into the track table
+    """
     # Open database connection
     con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
     cur = con.cursor()
@@ -75,6 +85,11 @@ def insert_into_play_table(data, trigger):
 
 
 def upload_track_table(data):
+    """
+    Function that uploads data in the track table.
+    :param list of dict data:
+    :return:
+    """
     # Open database connection
     con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
     cur = con.cursor()
@@ -122,6 +137,10 @@ def upload_track_table(data):
 
 
 def insert_into_map_track_album_table(data):
+    """
+    Function that checks if the track_id and album_id are already in the table and if not insert the info
+    :param list of dict data: Contains track_id, album_id, played_at, context
+    """
     # Open database connection
     con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
     cur = con.cursor()
@@ -149,6 +168,10 @@ def insert_into_map_track_album_table(data):
 
 
 def insert_into_map_track_artist_table(data):
+    """
+    Function that checks if the track_id and artist_id are already in the table and if not insert the info
+    :param list of dict data: Contains track_id, artist_id, played_at, context
+    """
     # Open database connection
     con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
     cur = con.cursor()
@@ -173,5 +196,3 @@ def insert_into_map_track_artist_table(data):
 
     con.commit()
     con.close()
-
-
