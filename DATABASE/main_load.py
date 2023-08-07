@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 
 import settings
@@ -193,6 +194,72 @@ def insert_into_map_track_artist_table(data):
             par_map_track_artist_ = (d['track_id'], d['artist_id'], d['played_at'], d['context'])
 
             cur.execute(sql_map_track_artist_, par_map_track_artist_)
+
+    con.commit()
+    con.close()
+
+
+def get_artists_ids_from_map_table():
+    """
+    Function that gets the artists ids from the map_track_table from 2 days before now
+    :return list artist_id: list of artists ids
+    """
+    # Open database connection
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    sql_select_ = '''SELECT DISTINCT artist_id
+                     FROM map_track_artist
+                     WHERE strftime('%Y-%m-%d %H:%M:%f', played_at) >= DATETIME('now', '-2 day')'''
+
+    cur.execute(sql_select_)
+    response = cur.fetchall()
+
+    if response:
+        artist_id_list = list()
+        for i in response:
+            artist_id_list.append(i[0])
+    else:
+        artist_id_list = None
+
+    return artist_id_list
+
+
+def insert_into_artist(data):
+    """
+    Function that gets data pre-transform to load it in the artist table.
+    Before insert, it checks if the info is already there to no violate unique constraint
+    :param data: dictionary with pre-transform artist data
+    """
+    # Open database connection
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    for d in data:
+
+        try:
+            # Check if the values are already in the table
+            sql_select_artist_ = '''SELECT id
+                             FROM artist
+                             WHERE id = ? '''
+            par_select_artist_ = [d['id']]
+
+            cur.execute(sql_select_artist_, par_select_artist_)
+
+        except ValueError:
+            logging.info('DATABASE: Check if artist id is already in the table at insert_info_artist')
+
+        if not cur.fetchone():
+
+            try:
+                sql_insert_artist_ = '''INSERT INTO artist (id, name, genres, followers, external_urls)
+                                           VALUES (?, ?, ?, ?, ?)'''
+                par_insert_artist_ = (d['id'], d['name'], d['genres'], d['followers'], d['external_urls'])
+
+                cur.execute(sql_insert_artist_, par_insert_artist_)
+
+            except ValueError:
+                logging.info('DATABASE: insert into artist table failed at insert_into_artist')
 
     con.commit()
     con.close()
