@@ -19,7 +19,8 @@ if __name__ == '__main__':
     # Use own methods to pull raw data from the Spotify API
     # user_info = extract_data.get_user_private_info(sp=spotify)
 
-    ###         USER LAST 50 PLAYED SONGS                       ###
+    ##         USER LAST 50 PLAYED SONGS                       ###
+
     # Extract
     try:
         played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
@@ -27,6 +28,25 @@ if __name__ == '__main__':
         logging.info('ENDPOINT NOT WORKING: get_user_recently_played_tracks ')
 
     # If the response is OK
+    try:
+        # Select, clean and transform data from the response to populate different tables
+        played_tracks, track_info, map_track_album_info, map_track_artist_info = (
+            transform_data.recently_played_tracks_response(data=played_tracks))
+    except ValueError:
+        logging.info('ENDPOINT RESPONSE: get_user_recently_played_tracks status: ', played_tracks['error']['status'])
+
+    # Load
+    try:
+        main_load.insert_into_play_audio_features_track_table(data=played_tracks, trigger=True)
+        main_load.upload_track_table(data=track_info)
+        main_load.insert_into_map_track_album_table(data=map_track_album_info)
+        main_load.insert_into_map_track_artist_table(data=map_track_artist_info)
+    except ValueError:
+        logging.info('LOAD DB ERROR: loading data from endpoint response get_user_recently_played_tracks')
+
+    ###         COMPLETE ARTIST INFO                              ###
+    # Query the map_track_artist table to get the artists ids that are going to be in the query
+    # We should query artist that have been included 2 days before now
     try:
         # Select, clean and transform data from the response to populate different tables
         played_tracks, track_info, map_track_album_info, map_track_artist_info = (
