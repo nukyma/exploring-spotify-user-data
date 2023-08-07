@@ -58,7 +58,7 @@ def insert_into_play_audio_features_track_table(data, trigger):
             if trigger:
                 # Search for the track in the track table
                 sql_search_track_ = "SELECT name FROM track WHERE id = ? "
-                par_search_track_ = [(d['track_id'])]
+                par_search_track_ = [d['track_id']]
 
                 cur.execute(sql_search_track_, par_search_track_)
 
@@ -157,7 +157,6 @@ def insert_into_map_track_album_table(data):
         cur.execute(sql_select_map_track_album_, par_select_map_track_album_)
 
         if not cur.fetchone():
-
             sql_map_track_album_ = '''INSERT INTO map_track_album (track_id, album_id, played_at, context)
                                        VALUES (?, ?, ?, ?)'''
             par_map_track_album_ = (d['track_id'], d['album_id'], d['played_at'], d['context'])
@@ -188,7 +187,6 @@ def insert_into_map_track_artist_table(data):
         cur.execute(sql_select_map_track_artist_, par_select_map_track_artist_)
 
         if not cur.fetchone():
-
             sql_map_track_artist_ = '''INSERT INTO map_track_artist (track_id, artist_id, played_at, context)
                                        VALUES (?, ?, ?, ?)'''
             par_map_track_artist_ = (d['track_id'], d['artist_id'], d['played_at'], d['context'])
