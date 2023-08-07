@@ -55,6 +55,8 @@ def recently_played_tracks_response(data):
 
 
 def make_batches_of_tracks_ids(size, data):
+    # batch_ids expected format: "7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"
+
     list_batches = list()
     counter = 0
     string_ids = ""
@@ -63,8 +65,8 @@ def make_batches_of_tracks_ids(size, data):
             string_ids = string_ids + str(i) + ','
             counter += 1
 
-        elif counter == 50 and i != data[len(data) - 1]:
-            # batch_ids expected format: "7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"
+        elif counter == size and i != data[len(data) - 1]:
+
             # Clean the ' chars
             string_ids = string_ids.replace("'", "")
             # Get rid of the last comma
