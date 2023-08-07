@@ -1,16 +1,57 @@
-def recently_played_tracks(data):
-    played_tracks = list()
-    for i in data['items']:
-        track_id = i['track']['id']
-        played_at = i['played_at'].replace('T', ' ')
-        context = i['context']['type']
+def recently_played_tracks_response(data):
+    """
+    get as much data as possible from the response to get_user_recently_played_tracks
+    :param data: response
+    :return:
+    """
 
-        played_tracks.append({'track_id': track_id,
-                              'played_at': played_at,
-                              'context': context}
+    # played_tracks for PLAY table
+    played_tracks = list()
+    map_track_album_info = list()
+    map_track_artist_info = list()
+    for i in data['items']:
+        played_tracks.append({'track_id': i['track']['id'],
+                              'played_at': i['played_at'].replace('T', ' '),
+                              'context': i['context']['type']}
                              )
 
-    return played_tracks
+        map_track_album_info.append({
+            'track_id': i['track']['id'],
+            'album_id': i['track']['album']['id'],
+            'played_at': i['played_at'].replace('T', ' '),
+            'context': i['context']['type'],
+        })
+
+        for k in i['track']['artists']:
+            map_track_artist_info.append({'track_id': i['track']['id'],
+                                          'artist_id': k['id'],
+                                          'played_at': i['played_at'].replace('T', ' '),
+                                          'context': i['context']['type']
+                                          })
+
+    # track_info for TRACK table
+    track_info = list()
+    for j in data['items']:
+
+        artists_id = list()
+        artists_names = list()
+        for m in j['track']['artists']:
+            artists_id.append(m['id'])
+            artists_names.append(m['name'])
+
+        track_info.append({'id': j['track']['id'],
+                           'name': j['track']['name'],
+                           'album_id': j['track']['album']['id'],
+                           'album_name': j['track']['album']['name'],
+                           'artists_id': str(artists_id),
+                           'artists_names': str(artists_names),
+                           'duration_ms': j['track']['duration_ms'],
+                           'explicit': j['track']['explicit'],
+                           'type': j['track']['type'],
+                           'preview_url': j['track']['external_urls']['spotify']
+                           })
+
+    return played_tracks, track_info, map_track_album_info, map_track_artist_info
 
 
 def make_batches_of_tracks_ids(size, data):
@@ -64,7 +105,6 @@ def tracks_info(data):
                      'artists_names': str(artists_names),
                      'duration_ms': i['duration_ms'],
                      'explicit': i['explicit'],
-                     'popularity': i['popularity'],
                      'type': i['type'],
                      'preview_url': i['preview_url']
                      }
@@ -97,5 +137,27 @@ def audio_features_info(data):
                                  'track_href': i['track_href']}
 
                 insert_list.append(audio_feature)
+
+    return insert_list
+
+
+def artist_info(data):
+    """
+    Get response artist data and format it for posterior load in database
+    :param data: response endpoint data
+    :return: artist info formatted and ready to be loaded in DB
+    """
+    insert_list = list()
+    for d in data:
+        for i in d['artists']:
+            if i:
+                artist = {'id': i['id'],
+                          'name': i['name'],
+                          'genres': str(i['genres']),
+                          'followers': i['followers']['total'],
+                          'external_urls': i['external_urls']['spotify']
+                          }
+
+                insert_list.append(artist)
 
     return insert_list

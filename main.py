@@ -1,66 +1,107 @@
-from requests.auth import HTTPBasicAuth
-from requests_oauthlib import OAuth2Session
-
-import settings
-from API import extract_data
-from DATABASE import play_table, track_table, audio_features_table
+from API import extract_data, connection
+from DATABASE import main_load
 from TRANSFORM import transform_data
 
+import logging
+from time import sleep
+
+import settings
+
 if __name__ == '__main__':
-    # Create a OAuth2Session named spotify
-    spotify = OAuth2Session(client_id=settings.CLIENT_ID,
-                            scope=settings.SCOPE,
-                            redirect_uri=settings.REDIRECT_URI)
 
-    # Redirect user to Spotify for authorization
-    authorization_url, state = spotify.authorization_url(settings.AUTHORIZATION_BASE_URL)
-    print('Please go here and authorize: ', authorization_url)
+    logging.basicConfig(level=logging.INFO, filename=settings.LOGS_FILE_LOCATION, format='%(asctime)s  -  %(message)s')
 
-    # Get the authorization verifier code from the callback url paste by the user
-    redirect_response = input('\n\nPaste the full redirect URL here: ')
-
-    auth = HTTPBasicAuth(settings.CLIENT_ID, settings.CLIENT_SECRET)
-
-    # Fetch the access token
-    token = spotify.fetch_token(settings.TOKEN_URL,
-                                auth=auth,
-                                authorization_response=redirect_response)
+    # Stablish connection (authentication and authorization) with Spotify API
+    try:
+        spotify, token = connection.connect_spotify_api()
+    except ConnectionError:
+        logging.info('Error connecting with Spotify API')
 
     # Use own methods to pull raw data from the Spotify API
     # user_info = extract_data.get_user_private_info(sp=spotify)
 
-    ###         USER LAST 50 PLAYED SONGS                       ###
-    # Extract
-    played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
-    # Transform: Select, clean and transform data
-    played_tracks_dict = transform_data.recently_played_tracks(data=played_tracks)
-    # Load
-    play_table.insert_into_play(data=played_tracks_dict)
+    ##         USER LAST 50 PLAYED SONGS                       ###
 
-    ###         COMPLETE TRACKS INFO IN BATCHES OF 50           ###
-    # Consult our DB
-    list_tracks_ids = track_table.get_tracks_incomplete()
-    # BATCH
-    list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_tracks_ids)
     # Extract
-    info_tracks = list()
-    for i in list_batch_ids:
-        info_tracks.append(extract_data.get_several_tracks_info(sp=spotify, batch_ids=i))
-    # Transform
-    info_tracks_dict = transform_data.tracks_info(data=info_tracks)
-    # Load
-    track_table.insert_into_track(data=info_tracks_dict)
+    try:
+        played_tracks = extract_data.get_user_recently_played_tracks(sp=spotify)
+    except RuntimeError:
+        logging.info('ENDPOINT NOT WORKING: get_user_recently_played_tracks ')
 
-    ###         COMPLETE AUDIO FEATURES INFO IN BATCHES OF 50    ###
-    # Consult our DB
-    list_audio_ids = audio_features_table.get_audio_incomplete()
-    # BATCH
-    list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_audio_ids)
-    # Extract
-    info_audio_features = list()
-    for i in list_batch_ids:
-        info_audio_features.append(extract_data.get_several_audio_features_info(sp=spotify, batch_ids=i))
-    # Transform
-    info_audio_features_dict = transform_data.audio_features_info(data=info_audio_features)
+    # If the response is OK
+    try:
+        # Select, clean and transform data from the response to populate different tables
+        played_tracks, track_info, map_track_album_info, map_track_artist_info = (
+            transform_data.recently_played_tracks_response(data=played_tracks))
+    except ValueError:
+        logging.info('ENDPOINT RESPONSE: get_user_recently_played_tracks status: ', played_tracks['error']['status'])
+
     # Load
-    audio_features_table.insert_into_audio_features(data=info_audio_features_dict)
+    try:
+        main_load.insert_into_play_audio_features_track_table(data=played_tracks, trigger=True)
+        main_load.upload_track_table(data=track_info)
+        main_load.insert_into_map_track_album_table(data=map_track_album_info)
+        main_load.insert_into_map_track_artist_table(data=map_track_artist_info)
+    except ValueError:
+        logging.info('LOAD DB ERROR: loading data from endpoint response get_user_recently_played_tracks')
+
+    ###         COMPLETE ARTIST INFO                              ###
+    # Query the map_track_artist table to get the artists ids that are going to be in the query
+    # We should query artist that have been included 2 days before now
+    try:
+        artists_ids_list = main_load.get_artists_ids_from_map_table()
+    except ValueError:
+        logging.info('DATABASE: Select artists_ids_from_map_table query failed')
+
+    if artists_ids_list:
+        # Chunk artist ids list into batches
+        artists_ids_batched = transform_data.make_batches_of_tracks_ids(size=50, data=artists_ids_list)
+
+        # Call the endpoint to get artist info data
+        info_artists = list()
+        for a in artists_ids_batched:
+            sleep(1)
+            try:
+                info_artists.append(extract_data.get_several_artists_info(sp=spotify, batch_ids=a))
+            except ValueError:
+                logging.info('ENDPOINT: response get_several_artists_info status: ', info_artists)
+    else:
+        logging.info('DATA: no data retrieve from artists_ids_from_map_table query')
+
+    # Transform the response into the data format we need to store it in the DB
+    info_artists_dict = transform_data.artist_info(data=info_artists)
+
+    # Load the data into the data base
+    try:
+        main_load.insert_into_artist(data=info_artists_dict)
+    except ValueError:
+        logging.info('DATABASE: Error loading info_artists_dict to artist table')
+
+
+    # ###         COMPLETE TRACKS INFO IN BATCHES OF 50           ###
+    # # Consult our DB
+    # list_tracks_ids = track_table.get_tracks_incomplete()
+    # # BATCH
+    # list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_tracks_ids)
+    # # Extract
+    # info_tracks = list()
+    # for i in list_batch_ids:
+    #     info_tracks.append(extract_data.get_several_tracks_info(sp=spotify, batch_ids=i))
+    # # Transform
+    # info_tracks_dict = transform_data.tracks_info(data=info_tracks)
+    # # Load
+    # track_table.insert_into_track(data=info_tracks_dict)
+    #
+    # ###         COMPLETE AUDIO FEATURES INFO IN BATCHES OF 50    ###
+    # # Consult our DB
+    # list_audio_ids = audio_features_table.get_audio_incomplete()
+    # # BATCH
+    # list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_audio_ids)
+    # # Extract
+    # info_audio_features = list()
+    # for i in list_batch_ids:
+    #     info_audio_features.append(extract_data.get_several_audio_features_info(sp=spotify, batch_ids=i))
+    # # Transform
+    # info_audio_features_dict = transform_data.audio_features_info(data=info_audio_features)
+    # # Load
+    # audio_features_table.insert_into_audio_features(data=info_audio_features_dict)
