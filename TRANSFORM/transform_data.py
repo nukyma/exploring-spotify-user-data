@@ -139,3 +139,25 @@ def audio_features_info(data):
                 insert_list.append(audio_feature)
 
     return insert_list
+
+
+def artist_info(data):
+    """
+    Get response artist data and format it for posterior load in database
+    :param data: response endpoint data
+    :return: artist info formatted and ready to be loaded in DB
+    """
+    insert_list = list()
+    for d in data:
+        for i in d['artists']:
+            if i:
+                artist = {'id': i['id'],
+                          'name': i['name'],
+                          'genres': str(i['genres']),
+                          'followers': i['followers']['total'],
+                          'external_urls': i['external_urls']['spotify']
+                          }
+
+                insert_list.append(artist)
+
+    return insert_list
