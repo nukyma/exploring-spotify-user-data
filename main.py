@@ -1,11 +1,10 @@
-from API import extract_data, connection
-from DATABASE import main_load
-from TRANSFORM import transform_data
-
 import logging
 from time import sleep
 
 import settings
+from API import extract_data, connection
+from DATABASE import main_load
+from TRANSFORM import transform_data
 
 if __name__ == '__main__':
 
