@@ -261,3 +261,74 @@ def insert_into_artist(data):
 
     con.commit()
     con.close()
+
+
+def get_album_ids_from_map_table():
+    """
+    Function that gets the artists ids from the map_track_table from 2 days before now
+    :return list artist_id: list of artists ids
+    """
+    # Open database connection
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    sql_select_ = '''SELECT DISTINCT album_id
+                     FROM map_track_album
+                     WHERE strftime('%Y-%m-%d %H:%M:%f', played_at) >= DATETIME('now', '-2 day')'''
+
+    cur.execute(sql_select_)
+    response = cur.fetchall()
+
+    if response:
+        album_id_list = list()
+        for i in response:
+            album_id_list.append(i[0])
+    else:
+        album_id_list = None
+
+    return album_id_list
+
+
+def insert_into_album(data):
+    """
+    Function that gets data pre-transform to load it at album table.
+    Before insert, it checks if the info is already there to no violate unique constraint
+    :param data: dictionary with pre-transform album data
+    """
+    # Open database connection
+    con = sqlite3.connect(settings.DB_ABSOLUTE_PATH)
+    cur = con.cursor()
+
+    for d in data:
+
+        try:
+            # Check if the values are already in the table
+            sql_select_album_ = '''SELECT id
+                                   FROM album
+                                   WHERE id = ? '''
+            par_select_album_ = [d['id']]
+
+            cur.execute(sql_select_album_, par_select_album_)
+
+        except ValueError:
+            logging.info('DATABASE: Check if album id is already in the table at insert_info_album')
+
+        if not cur.fetchone():
+
+            try:
+                sql_insert_album_ = '''INSERT INTO album (id, name, genres, album_type, total_tracks, 
+                                                          release_date, external_urls, label, 
+                                                          artist_album_name, artist_album_id)
+                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+
+                par_insert_album_ = (d['id'], d['name'], d['genres'], d['album_type'], d['total_tracks'],
+                                     d['release_date'], d['external_urls'], d['label'],
+                                     d['artist_album_name'], d['artist_album_id'])
+
+                cur.execute(sql_insert_album_, par_insert_album_)
+
+            except ValueError:
+                logging.info('DATABASE: insert into album table failed at insert_into_album')
+
+    con.commit()
+    con.close()

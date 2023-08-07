@@ -55,6 +55,8 @@ def recently_played_tracks_response(data):
 
 
 def make_batches_of_tracks_ids(size, data):
+    # batch_ids expected format: "7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"
+
     list_batches = list()
     counter = 0
     string_ids = ""
@@ -63,8 +65,8 @@ def make_batches_of_tracks_ids(size, data):
             string_ids = string_ids + str(i) + ','
             counter += 1
 
-        elif counter == 50 and i != data[len(data) - 1]:
-            # batch_ids expected format: "7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"
+        elif counter == size and i != data[len(data) - 1]:
+
             # Clean the ' chars
             string_ids = string_ids.replace("'", "")
             # Get rid of the last comma
@@ -159,5 +161,39 @@ def artist_info(data):
                           }
 
                 insert_list.append(artist)
+
+    return insert_list
+
+
+def album_info(data):
+    """
+    Get response album data and format it for posterior load in database
+    :param data: response endpoint data
+    :return: album info formatted and ready to be loaded in DB
+    """
+    insert_list = list()
+    for d in data:
+        for i in d['albums']:
+            if i:
+                # Artists lists
+                artists_ids = list()
+                artists_names = list()
+                for j in i['artists']:
+                    artists_ids.append(j['id'])
+                    artists_names.append(j['name'])
+
+                album = {'id': i['id'],
+                         'name': i['name'],
+                         'genres': str(i['genres']),
+                         'album_type': i['album_type'],
+                         'total_tracks': i['total_tracks'],
+                         'release_date': i['release_date'],
+                         'label': i['label'],
+                         'artist_album_name': str(artists_names),
+                         'artist_album_id': str(artists_ids),
+                         'external_urls': i['external_urls']['spotify']
+                         }
+
+                insert_list.append(album)
 
     return insert_list
