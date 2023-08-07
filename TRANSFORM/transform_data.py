@@ -163,3 +163,37 @@ def artist_info(data):
                 insert_list.append(artist)
 
     return insert_list
+
+
+def album_info(data):
+    """
+    Get response album data and format it for posterior load in database
+    :param data: response endpoint data
+    :return: album info formatted and ready to be loaded in DB
+    """
+    insert_list = list()
+    for d in data:
+        for i in d['albums']:
+            if i:
+                # Artists lists
+                artists_ids = list()
+                artists_names = list()
+                for j in i['artists']:
+                    artists_ids.append(j['id'])
+                    artists_names.append(j['name'])
+
+                album = {'id': i['id'],
+                         'name': i['name'],
+                         'genres': str(i['genres']),
+                         'album_type': i['album_type'],
+                         'total_tracks': i['total_tracks'],
+                         'release_date': i['release_date'],
+                         'label': i['label'],
+                         'artist_album_name': str(artists_names),
+                         'artist_album_id': str(artists_ids),
+                         'external_urls': i['external_urls']['spotify']
+                         }
+
+                insert_list.append(album)
+
+    return insert_list
