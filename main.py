@@ -3,6 +3,7 @@ from DATABASE import main_load
 from TRANSFORM import transform_data
 
 import logging
+from time import sleep
 
 import settings
 
@@ -48,20 +49,33 @@ if __name__ == '__main__':
     # Query the map_track_artist table to get the artists ids that are going to be in the query
     # We should query artist that have been included 2 days before now
     try:
-        # Select, clean and transform data from the response to populate different tables
-        played_tracks, track_info, map_track_album_info, map_track_artist_info = (
-            transform_data.recently_played_tracks_response(data=played_tracks))
+        artists_ids_list = main_load.get_artists_ids_from_map_table()
     except ValueError:
-        logging.info('ENDPOINT RESPONSE: get_user_recently_played_tracks status: ', played_tracks['error']['status'])
+        logging.info('DATABASE: Select artists_ids_from_map_table query failed')
 
-    # Load
+    if artists_ids_list:
+        # Chunk artist ids list into batches
+        artists_ids_batched = transform_data.make_batches_of_tracks_ids(size=50, data=artists_ids_list)
+
+        # Call the endpoint to get artist info data
+        info_artists = list()
+        for a in artists_ids_batched:
+            sleep(1)
+            try:
+                info_artists.append(extract_data.get_several_artists_info(sp=spotify, batch_ids=a))
+            except ValueError:
+                logging.info('ENDPOINT: response get_several_artists_info status: ', info_artists)
+    else:
+        logging.info('DATA: no data retrieve from artists_ids_from_map_table query')
+
+    # Transform the response into the data format we need to store it in the DB
+    info_artists_dict = transform_data.artist_info(data=info_artists)
+
+    # Load the data into the data base
     try:
-        main_load.insert_into_play_audio_features_track_table(data=played_tracks, trigger=True)
-        main_load.upload_track_table(data=track_info)
-        main_load.insert_into_map_track_album_table(data=map_track_album_info)
-        main_load.insert_into_map_track_artist_table(data=map_track_artist_info)
+        main_load.insert_into_artist(data=info_artists_dict)
     except ValueError:
-        logging.info('LOAD DB ERROR: loading data from endpoint response get_user_recently_played_tracks')
+        logging.info('DATABASE: Error loading info_artists_dict to artist table')
 
 
     # ###         COMPLETE TRACKS INFO IN BATCHES OF 50           ###
