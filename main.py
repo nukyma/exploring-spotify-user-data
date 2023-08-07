@@ -3,7 +3,7 @@ from time import sleep
 
 import settings
 from API import extract_data, connection
-from DATABASE import main_load
+from DATABASE import main_db_queries
 from TRANSFORM import transform_data
 
 if __name__ == '__main__':
@@ -37,10 +37,10 @@ if __name__ == '__main__':
 
     # Load
     try:
-        main_load.insert_into_play_audio_features_track_table(data=played_tracks, trigger=True)
-        main_load.upload_track_table(data=track_info)
-        main_load.insert_into_map_track_album_table(data=map_track_album_info)
-        main_load.insert_into_map_track_artist_table(data=map_track_artist_info)
+        main_db_queries.insert_into_play_audio_features_track_table(data=played_tracks, trigger=True)
+        main_db_queries.upload_track_table(data=track_info)
+        main_db_queries.insert_into_map_track_album_table(data=map_track_album_info)
+        main_db_queries.insert_into_map_track_artist_table(data=map_track_artist_info)
     except ValueError:
         logging.info('LOAD DB ERROR: loading data from endpoint response get_user_recently_played_tracks')
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # Query the map_track_artist table to get the artists ids that are going to be in the query
     # We should query artist that have been included 2 days before now
     try:
-        artists_ids_list = main_load.get_artists_ids_from_map_table()
+        artists_ids_list = main_db_queries.get_artists_ids_from_map_table()
     except ValueError:
         logging.info('DATABASE: Select artists_ids_from_map_table query failed')
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     # Load the data into the data base
     try:
-        main_load.insert_into_artist(data=info_artists_dict)
+        main_db_queries.insert_into_artist(data=info_artists_dict)
     except ValueError:
         logging.info('DATABASE: Error loading info_artists_dict to artist table')
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # Query the map_track_album table to get the album ids that are going to be in the query
     # We should query albums that have been included 2 days before now
     try:
-        album_ids_list = main_load.get_album_ids_from_map_table()
+        album_ids_list = main_db_queries.get_album_ids_from_map_table()
     except ValueError:
         logging.info('DATABASE: get_album_ids_from_map_table query failed')
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     # Load the data into the data base
     try:
-        main_load.insert_into_album(data=info_album_dict)
+        main_db_queries.insert_into_album(data=info_album_dict)
     except ValueError:
         logging.info('DATABASE: Error loading info_album_dict to artist table')
 
