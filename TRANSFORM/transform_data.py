@@ -91,27 +91,28 @@ def make_batches_of_tracks_ids(size, data):
 def tracks_info(data):
     insert_list = list()
     for d in data:
-        for i in d['tracks']:
+        if 'tracks' in d.keys():
+            for i in d['tracks']:
 
-            artists_id = list()
-            artists_names = list()
-            for a in i['artists']:
-                artists_id.append(a['id'])
-                artists_names.append(a['name'])
+                artists_id = list()
+                artists_names = list()
+                for a in i['artists']:
+                    artists_id.append(a['id'])
+                    artists_names.append(a['name'])
 
-            track = {'id': i['id'],
-                     'name': i['name'],
-                     'album_id': i['album']['id'],
-                     'album_name': i['album']['name'],
-                     'artists_id': str(artists_id),
-                     'artists_names': str(artists_names),
-                     'duration_ms': i['duration_ms'],
-                     'explicit': i['explicit'],
-                     'type': i['type'],
-                     'preview_url': i['preview_url']
-                     }
+                track = {'id': i['id'],
+                         'name': i['name'],
+                         'album_id': i['album']['id'],
+                         'album_name': i['album']['name'],
+                         'artists_id': str(artists_id),
+                         'artists_names': str(artists_names),
+                         'duration_ms': i['duration_ms'],
+                         'explicit': i['explicit'],
+                         'type': i['type'],
+                         'preview_url': i['preview_url']
+                         }
 
-            insert_list.append(track)
+                insert_list.append(track)
 
     return insert_list
 
@@ -119,26 +120,27 @@ def tracks_info(data):
 def audio_features_info(data):
     insert_list = list()
     for d in data:
-        for i in d['audio_features']:
-            if i:
-                audio_feature = {'track_id': i['id'],
-                                 'acousticness': i['acousticness'],
-                                 'analysis_url': i['analysis_url'],
-                                 'danceability': i['danceability'],
-                                 'duration_ms': i['duration_ms'],
-                                 'energy': i['energy'],
-                                 'instrumentalness': i['instrumentalness'],
-                                 'key': i['key'],
-                                 'liveness': i['liveness'],
-                                 'loudness': i['loudness'],
-                                 'mode': i['mode'],
-                                 'valence': i['valence'],
-                                 'speechiness': i['speechiness'],
-                                 'tempo': i['tempo'],
-                                 'time_signature': i['time_signature'],
-                                 'track_href': i['track_href']}
+        if 'audio_features' in d.keys():
+            for i in d['audio_features']:
+                if i:
+                    audio_feature = {'track_id': i['id'],
+                                     'acousticness': i['acousticness'],
+                                     'analysis_url': i['analysis_url'],
+                                     'danceability': i['danceability'],
+                                     'duration_ms': i['duration_ms'],
+                                     'energy': i['energy'],
+                                     'instrumentalness': i['instrumentalness'],
+                                     'key': i['key'],
+                                     'liveness': i['liveness'],
+                                     'loudness': i['loudness'],
+                                     'mode': i['mode'],
+                                     'valence': i['valence'],
+                                     'speechiness': i['speechiness'],
+                                     'tempo': i['tempo'],
+                                     'time_signature': i['time_signature'],
+                                     'track_href': i['track_href']}
 
-                insert_list.append(audio_feature)
+                    insert_list.append(audio_feature)
 
     return insert_list
 
@@ -151,16 +153,17 @@ def artist_info(data):
     """
     insert_list = list()
     for d in data:
-        for i in d['artists']:
-            if i:
-                artist = {'id': i['id'],
-                          'name': i['name'],
-                          'genres': str(i['genres']),
-                          'followers': i['followers']['total'],
-                          'external_urls': i['external_urls']['spotify']
-                          }
+        if 'artists' in d.keys():
+            for i in d['artists']:
+                if i:
+                    artist = {'id': i['id'],
+                              'name': i['name'],
+                              'genres': str(i['genres']),
+                              'followers': i['followers']['total'],
+                              'external_urls': i['external_urls']['spotify']
+                              }
 
-                insert_list.append(artist)
+                    insert_list.append(artist)
 
     return insert_list
 
@@ -173,27 +176,28 @@ def album_info(data):
     """
     insert_list = list()
     for d in data:
-        for i in d['albums']:
-            if i:
-                # Artists lists
-                artists_ids = list()
-                artists_names = list()
-                for j in i['artists']:
-                    artists_ids.append(j['id'])
-                    artists_names.append(j['name'])
+        if 'albums' in d.keys():
+            for i in d['albums']:
+                if i:
+                    # Artists lists
+                    artists_ids = list()
+                    artists_names = list()
+                    for j in i['artists']:
+                        artists_ids.append(j['id'])
+                        artists_names.append(j['name'])
 
-                album = {'id': i['id'],
-                         'name': i['name'],
-                         'genres': str(i['genres']),
-                         'album_type': i['album_type'],
-                         'total_tracks': i['total_tracks'],
-                         'release_date': i['release_date'],
-                         'label': i['label'],
-                         'artist_album_name': str(artists_names),
-                         'artist_album_id': str(artists_ids),
-                         'external_urls': i['external_urls']['spotify']
-                         }
+                    album = {'id': i['id'],
+                             'name': i['name'],
+                             'genres': str(i['genres']),
+                             'album_type': i['album_type'],
+                             'total_tracks': i['total_tracks'],
+                             'release_date': i['release_date'],
+                             'label': i['label'],
+                             'artist_album_name': str(artists_names),
+                             'artist_album_id': str(artists_ids),
+                             'external_urls': i['external_urls']['spotify']
+                             }
 
-                insert_list.append(album)
+                    insert_list.append(album)
 
     return insert_list
