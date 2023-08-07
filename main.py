@@ -77,20 +77,38 @@ if __name__ == '__main__':
     except ValueError:
         logging.info('DATABASE: Error loading info_artists_dict to artist table')
 
+    ###         COMPLETE ALBUM INFO                              ###
+    # Query the map_track_album table to get the album ids that are going to be in the query
+    # We should query albums that have been included 2 days before now
+    try:
+        album_ids_list = main_load.get_album_ids_from_map_table()
+    except ValueError:
+        logging.info('DATABASE: get_album_ids_from_map_table query failed')
 
-    # ###         COMPLETE TRACKS INFO IN BATCHES OF 50           ###
-    # # Consult our DB
-    # list_tracks_ids = track_table.get_tracks_incomplete()
-    # # BATCH
-    # list_batch_ids = transform_data.make_batches_of_tracks_ids(size=50, data=list_tracks_ids)
-    # # Extract
-    # info_tracks = list()
-    # for i in list_batch_ids:
-    #     info_tracks.append(extract_data.get_several_tracks_info(sp=spotify, batch_ids=i))
-    # # Transform
-    # info_tracks_dict = transform_data.tracks_info(data=info_tracks)
-    # # Load
-    # track_table.insert_into_track(data=info_tracks_dict)
+    if album_ids_list:
+        # Chunk artist ids list into batches
+        album_ids_batched = transform_data.make_batches_of_tracks_ids(size=20, data=album_ids_list)
+
+        # Call the endpoint to get artist info data
+        info_album = list()
+        for album_batch in album_ids_batched:
+            sleep(1.35)
+            try:
+                info_album.append(extract_data.get_several_album_info(sp=spotify, batch_ids=album_batch))
+            except ValueError:
+                logging.info('ENDPOINT: response get_several_album_info status: ', info_album)
+    else:
+        logging.info('DATA: no data retrieve from get_album_ids_from_map_table query')
+
+    # Transform the response into the data format we need to store it in the DB
+    info_album_dict = transform_data.album_info(data=info_album)
+
+    # Load the data into the data base
+    try:
+        main_load.insert_into_album(data=info_album_dict)
+    except ValueError:
+        logging.info('DATABASE: Error loading info_album_dict to artist table')
+
     #
     # ###         COMPLETE AUDIO FEATURES INFO IN BATCHES OF 50    ###
     # # Consult our DB
