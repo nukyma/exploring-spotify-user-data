@@ -67,3 +67,17 @@ def get_several_artists_info(sp, batch_ids):
     result = sp.get(endpoint_url + batch_ids)
 
     return json.loads(result.text)
+
+
+def get_several_album_info(sp, batch_ids):
+    """
+    get album info
+    :param sp: authorize spotify session
+    :param batch_ids: A comma-separated list of the Spotify IDs
+    :return json: items dict size 50 with album info
+    """
+
+    endpoint_url = API.endpoints.SEVERAL_ALBUMS_INFO
+    result = sp.get(endpoint_url + batch_ids)
+
+    return json.loads(result.text)
