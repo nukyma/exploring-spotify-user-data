@@ -10,23 +10,26 @@ def recently_played_tracks_response(data):
     map_track_album_info = list()
     map_track_artist_info = list()
     for i in data['items']:
+        if i['context']:
+            contx = i['context']['type']
+        else:
+            contx = None
         played_tracks.append({'track_id': i['track']['id'],
                               'played_at': i['played_at'].replace('T', ' '),
-                              'context': i['context']['type']}
-                             )
+                              'context': contx})
 
         map_track_album_info.append({
             'track_id': i['track']['id'],
             'album_id': i['track']['album']['id'],
             'played_at': i['played_at'].replace('T', ' '),
-            'context': i['context']['type'],
+            'context': contx,
         })
 
         for k in i['track']['artists']:
             map_track_artist_info.append({'track_id': i['track']['id'],
                                           'artist_id': k['id'],
                                           'played_at': i['played_at'].replace('T', ' '),
-                                          'context': i['context']['type']
+                                          'context': contx
                                           })
 
     # track_info for TRACK table
