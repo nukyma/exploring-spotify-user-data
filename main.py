@@ -1,4 +1,6 @@
 import logging
+import os
+import time
 from time import sleep
 
 import settings
@@ -10,11 +12,15 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO, filename=settings.LOGS_FILE_LOCATION, format='%(asctime)s  -  %(message)s')
 
+
+
     # Stablish connection (authentication and authorization) with Spotify API
     try:
         spotify, token = connection.connect_spotify_api()
     except ConnectionError:
         logging.info('Error connecting with Spotify API')
+
+
 
     # Use own methods to pull raw data from the Spotify API
     # user_info = extract_data.get_user_private_info(sp=spotify)
